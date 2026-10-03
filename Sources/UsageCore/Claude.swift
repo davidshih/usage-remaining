@@ -86,8 +86,23 @@ public enum Claude {
         request.httpMethod = "GET"
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.setValue("oauth-2025-04-20", forHTTPHeaderField: "anthropic-beta")
-        request.setValue("usage-widget/0.1", forHTTPHeaderField: "User-Agent")
+        request.setValue(userAgent(version: claudeCodeVersion()), forHTTPHeaderField: "User-Agent")
         return request
+    }
+
+    /// Claude reports reset credits (`cedar_ember`) only to its own CLI and checks the CLI version,
+    /// so the request identifies as the installed Claude Code.
+    public static func userAgent(version: String) -> String { "claude-cli/\(version) (external, cli)" }
+
+    static let fallbackClaudeCodeVersion = "2.1.284"
+
+    /// The native installer links `~/.local/bin/claude` to `…/versions/<x.y.z>`; anything else falls back.
+    public static func claudeCodeVersion(launcher: String = NSHomeDirectory() + "/.local/bin/claude") -> String {
+        guard let target = try? FileManager.default.destinationOfSymbolicLink(atPath: launcher) else {
+            return fallbackClaudeCodeVersion
+        }
+        let version = (target as NSString).lastPathComponent
+        return version.range(of: #"^\d+\.\d+\.\d+$"#, options: .regularExpression) != nil ? version : fallbackClaudeCodeVersion
     }
 
     public static func parse(status: Int, body: Data, plan: String?, now: Date = Date()) throws -> ProviderUsage {

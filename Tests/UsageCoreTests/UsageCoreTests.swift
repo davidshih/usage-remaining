@@ -131,7 +131,7 @@ private let base = Date(timeIntervalSince1970: 2_000_000)
     #expect(throws: UsageError.authExpired(Claude.loginHint)) { try Claude.accessToken(fromKeychainJSON: Data("[]".utf8)) }
     let req = Claude.usageRequest(accessToken: "t-1")
     #expect(req.httpMethod == "GET")
-    #expect(req.value(forHTTPHeaderField: "User-Agent") == "usage-widget/0.1")
+    #expect(req.value(forHTTPHeaderField: "User-Agent") == Claude.userAgent(version: Claude.claudeCodeVersion()))
     #expect(req.timeoutInterval == 15)
 }
 
@@ -185,4 +185,18 @@ private let base = Date(timeIntervalSince1970: 2_000_000)
     #expect(try Claude.fableWindow(fromLimits: JSONSerialization.jsonObject(with: Data(other.utf8))) == nil)
     let bad = #"[{"kind":"weekly_scoped","percent":"91","scope":{"model":{"display_name":"Fable"}}}]"#
     #expect(throws: UsageError.self) { try Claude.fableWindow(fromLimits: JSONSerialization.jsonObject(with: Data(bad.utf8))) }
+}
+
+@Test func claudeUserAgentUsesInstalledClaudeCodeVersion() throws {
+    #expect(Claude.userAgent(version: "2.3.4") == "claude-cli/2.3.4 (external, cli)")
+    let dir = FileManager.default.temporaryDirectory.appendingPathComponent("ua-\(UUID().uuidString)")
+    try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: dir) }
+    let native = dir.appendingPathComponent("claude").path
+    try FileManager.default.createSymbolicLink(atPath: native, withDestinationPath: "/x/versions/3.0.12")
+    #expect(Claude.claudeCodeVersion(launcher: native) == "3.0.12")
+    let npm = dir.appendingPathComponent("claude-npm").path
+    try FileManager.default.createSymbolicLink(atPath: npm, withDestinationPath: "../lib/node_modules/@anthropic-ai/claude-code/cli.js")
+    #expect(Claude.claudeCodeVersion(launcher: npm) == Claude.fallbackClaudeCodeVersion)
+    #expect(Claude.claudeCodeVersion(launcher: dir.appendingPathComponent("missing").path) == Claude.fallbackClaudeCodeVersion)
 }

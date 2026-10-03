@@ -41,7 +41,11 @@ dependency (executable path, Keychain tool path, `URLSession`).
 ### Claude
 
 `GET https://api.anthropic.com/api/oauth/usage?cedar_ember=1&skip_spend=1` with the Claude Code
-OAuth token (`Authorization: Bearer …`, `anthropic-beta: oauth-2025-04-20`). Fields used:
+OAuth token (`Authorization: Bearer …`, `anthropic-beta: oauth-2025-04-20`) and Claude Code's
+`User-Agent`, `claude-cli/<version> (external, cli)`. The version is read from the native
+installer's `~/.local/bin/claude` → `…/versions/<x.y.z>` link (fallback `2.1.284`). With any other
+User-Agent, `cedar_ember` answers `ineligible_reason: "surface"` with no grants, and it also checks
+the CLI version (`cli_version`), so the version is not hard-coded. Fields used:
 
 | Field | Used for |
 |---|---|
@@ -87,7 +91,6 @@ parser, so the suite runs offline and never touches your Keychain.
 
 ## Known limitations
 
-- With a non-Claude-Code `User-Agent`, `cedar_ember` reports `ineligible_reason: "surface"` and no
-  grants, so Claude reset dots don't appear.
+- New subscriptions get `ineligible_reason: "tenure"` (no grants) for their first weeks.
 - Both providers' endpoints are undocumented and can change without notice.
 - Not verified yet: Claude reset dots with real grants, and the login item after a reboot.

@@ -38,7 +38,7 @@
 
 ### Claude
 
-`GET https://api.anthropic.com/api/oauth/usage?cedar_ember=1&skip_spend=1`，帶 Claude Code 的 OAuth token（`Authorization: Bearer …`、`anthropic-beta: oauth-2025-04-20`）。用到的欄位：
+`GET https://api.anthropic.com/api/oauth/usage?cedar_ember=1&skip_spend=1`，帶 Claude Code 的 OAuth token（`Authorization: Bearer …`、`anthropic-beta: oauth-2025-04-20`），以及 Claude Code 的 `User-Agent`：`claude-cli/<版本> (external, cli)`。版本從原生安裝程式的 `~/.local/bin/claude` → `…/versions/<x.y.z>` 連結讀出（讀不到就用 `2.1.284`）。換成其他 User-Agent 的話，`cedar_ember` 會回 `ineligible_reason: "surface"` 而且沒有 grants；它也會檢查 CLI 版本（`cli_version`），所以版本不能寫死。用到的欄位：
 
 | 欄位 | 用途 |
 |---|---|
@@ -74,6 +74,6 @@ Codex CLI 用假腳本取代，Claude 的測試則把錄下來的 JSON 直接餵
 
 ## 已知限制
 
-- `User-Agent` 不是 Claude Code 的話，`cedar_ember` 會回 `ineligible_reason: "surface"` 而且沒有 grants，所以 Claude 那列不會出現重置券的點。
+- 新訂閱的前幾週會拿到 `ineligible_reason: "tenure"`（沒有 grants）。
 - 兩家的 API 都沒有公開文件，隨時可能改掉。
 - 還沒驗證：有真實 grants 時 Claude 重置券點的顯示、重開機後登入項目的行為。

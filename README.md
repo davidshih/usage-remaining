@@ -85,7 +85,9 @@ a gauge icon in the menu bar. **Refresh Now** (⌘R) fetches fresh numbers; comp
 - **Read-only.** The widget never writes to the Keychain, never refreshes your token (so it
   can't log Claude Code out) and never uses or claims a reset credit.
 - **Your token goes only to `api.anthropic.com`.** Redirects are refused so it can't be
-  forwarded anywhere else.
+  forwarded anywhere else. The request uses Claude Code's `User-Agent`
+  (`claude-cli/<your installed version> (external, cli)`), because Claude only reports reset
+  credits to its own CLI.
 - **Nothing is logged or collected.** No analytics, no network calls other than the one usage
   request; Codex is queried locally through its own CLI.
 
@@ -93,8 +95,8 @@ a gauge icon in the menu bar. **Refresh Now** (⌘R) fetches fresh numbers; comp
 
 This is an unofficial tool, not affiliated with or endorsed by Anthropic or OpenAI. It relies on
 undocumented endpoints (`/api/oauth/usage` and `codex app-server`), which can change or break at
-any time. Known limitation: Claude only reports reset credits to its own clients, so the Claude
-row may show no dots even if your account has resets.
+any time. No dots on the Claude row usually means your account has no reset credits yet; Claude
+doesn't grant them to new subscriptions right away.
 
 ## Development
 

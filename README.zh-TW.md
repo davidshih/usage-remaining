@@ -72,12 +72,12 @@ swift test   # 單元測試，離線即可執行
 ## 隱私與安全
 
 - **全程唯讀。** 不寫入鑰匙圈、不更新你的 token（所以不會把 Claude Code 登出），也不會使用或領取任何重置券。
-- **Token 只會送到 `api.anthropic.com`。** 拒絕所有重新導向，token 不會被轉送到別的地方。
+- **Token 只會送到 `api.anthropic.com`。** 拒絕所有重新導向，token 不會被轉送到別的地方。請求會帶 Claude Code 的 `User-Agent`（`claude-cli/<你安裝的版本> (external, cli)`），因為 Claude 只把重置券資訊回給自家的 CLI。
 - **不記錄、不蒐集任何東西。** 沒有分析追蹤；widget 自己只發這一個用量請求，Codex 則透過它自己的 CLI 在本機查詢。
 
 ## 免責聲明
 
-這是非官方工具，與 Anthropic 或 OpenAI 沒有任何關係，也未經其背書。它依賴未公開的介面（`/api/oauth/usage` 與 `codex app-server`），隨時可能變動或失效。已知限制：Claude 只把重置券資訊回給自家的客戶端，所以就算你的帳號有券，Claude 那一列也可能不顯示綠點。
+這是非官方工具，與 Anthropic 或 OpenAI 沒有任何關係，也未經其背書。它依賴未公開的介面（`/api/oauth/usage` 與 `codex app-server`），隨時可能變動或失效。Claude 那一列沒有綠點，通常代表你的帳號還沒有重置券；新訂閱不會馬上拿到。
 
 ## 開發
 
