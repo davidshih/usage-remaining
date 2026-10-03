@@ -1,7 +1,10 @@
+# Build output
 .build/
+dist/
 *.app
 .DS_Store
-plans/*/*.log
-plans/*/*.log.out
-plans/*/diff.reviewed-tree
-plans/*/security.diff
+
+# Local-only working notes (pipeline runs, status reports, handoff)
+plans/
+docs/status/
+HANDOFF.md
