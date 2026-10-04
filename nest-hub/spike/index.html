@@ -1,0 +1,57 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cast spike</title>
+<style>
+body{margin:0;background:#111;color:#eee;font:24px -apple-system,Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
+#clock{font-size:120px;font-weight:600}
+pre{font-size:18px;color:#9c9}
+</style></head><body>
+<div id="clock">--:--:--</div>
+<div>up <span id="up">0</span>s · pings ok <span id="ok">0</span></div>
+<div style="font-size:48px;color:#fc6">tap: <span id="tap">none yet</span></div>
+<div style="font-size:24px;color:#6cf">sound<span id="snd"></span></div>
+<pre id="info"></pre>
+<script>
+const t0 = Date.now(); let ok = 0;
+const info = {iframe: window.top !== window, href: location.href, w: innerWidth, h: innerHeight,
+  sw: screen.width, sh: screen.height, dpr: devicePixelRatio, ua: navigator.userAgent};
+document.getElementById('info').textContent = JSON.stringify(info, null, 1);
+function tick(){
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+  document.getElementById('up').textContent = Math.round((Date.now()-t0)/1000);
+}
+function ping(){
+  const up = Math.round((Date.now()-t0)/1000);
+  fetch('/ping?up=' + up + '&info=' + encodeURIComponent(JSON.stringify(info)), {cache:'no-store'})
+    .then(r => { if (r.ok) document.getElementById('ok').textContent = ++ok; }).catch(() => {});
+}
+setInterval(tick, 1000); tick(); setInterval(ping, 15000); ping();
+function report(msg){
+  document.getElementById('snd').textContent += ' | ' + msg;
+  fetch('/audio?msg=' + encodeURIComponent(msg), {cache: 'no-store'}).catch(() => {});
+}
+async function soundTest(when){
+  try {
+    const ctx = new AudioContext();
+    if (ctx.state !== 'running') await Promise.race([ctx.resume(), new Promise(r => setTimeout(r, 1000))]);
+    const o = ctx.createOscillator(); o.frequency.value = 880; o.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime + 0.3);
+    report(`${when}: webaudio state=${ctx.state}`);
+  } catch (e) { report(`${when}: webaudio err ${e.name}`); }
+  try { await new Audio('/beep.wav?t=' + Date.now()).play(); report(`${when}: <audio> played`); }
+  catch (e) { report(`${when}: <audio> ${e.name}`); }
+}
+setTimeout(() => soundTest('auto'), 2000);
+let taps = 0;
+for (const type of ['touchstart', 'pointerdown', 'click', 'keydown']) {
+  addEventListener(type, e => {
+    const p = e.touches ? e.touches[0] : e;
+    const x = Math.round(p.clientX || 0), y = Math.round(p.clientY || 0);
+    document.getElementById('tap').textContent = `${++taps} ${type} @ ${x},${y} ${e.key || ''}`;
+    document.body.style.background = taps % 2 ? '#123' : '#111';
+    if (type === 'click' && !window.armed) { window.armed = true; report('armed, beep in 20s');
+      setTimeout(() => soundTest('delayed-20s'), 20000); setTimeout(() => soundTest('delayed-60s'), 60000); }
+    fetch(`/touch?type=${type}&x=${x}&y=${y}&key=${e.key || ''}`, {cache: 'no-store'}).catch(() => {});
+  });
+}
+</script></body></html>

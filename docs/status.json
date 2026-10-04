@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "updated": "2026-10-03",
+  "head": "f6eada8",
+  "items": [
+    {
+      "id": "nest-hub-dashboard",
+      "title": "Decide on and build the interactive usage web dashboard (Nest Hub, iPad)",
+      "owner": "you",
+      "section": "next",
+      "cmd": "cd nest-hub/spike && python3 server.py 8765",
+      "note": "spike results in docs/reference/nest-hub-cast.md"
+    },
+    {
+      "id": "codex-diff-review",
+      "title": "Optional Codex diff review once Codex quota is back",
+      "owner": "claude",
+      "section": "later",
+      "cmd": "(. plans/20261003-usage-widget/models.env && bash ~/.claude/skills/codex-pipeline/scripts/run_codex.sh diffreview plans/20261003-usage-widget/plan-final.html standard)"
+    }
+  ]
+}
